@@ -145,7 +145,7 @@ export function StepForm({
 
   return (
     <Modal open={open} onClose={onClose} title={isEdit ? "Edit Step" : "Add Step"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <Input
           label="Description"
           placeholder="e.g. Describe what's in the image"
@@ -155,45 +155,46 @@ export function StepForm({
           required
         />
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Step Type
-          </label>
-          <select
-            value={stepTypeId}
-            onChange={(e) => setStepTypeId(Number(e.target.value))}
-            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20"
-          >
-            {stepTypes.map((st) => (
-              <option key={st.id} value={st.id}>
-                {st.description}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Step Type
+            </label>
+            <select
+              value={stepTypeId}
+              onChange={(e) => setStepTypeId(Number(e.target.value))}
+              className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20"
+            >
+              {stepTypes.map((st) => (
+                <option key={st.id} value={st.id}>
+                  {st.description}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              LLM Model
+            </label>
+            <select
+              value={modelId}
+              onChange={(e) => setModelId(Number(e.target.value))}
+              className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20"
+            >
+              {Object.entries(modelsByProvider).map(([provider, providerModels]) => (
+                <optgroup key={provider} label={provider}>
+                  {providerModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            LLM Model
-          </label>
-          <select
-            value={modelId}
-            onChange={(e) => setModelId(Number(e.target.value))}
-            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20"
-          >
-            {Object.entries(modelsByProvider).map(([provider, providerModels]) => (
-              <optgroup key={provider} label={provider}>
-                {providerModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Input Type
@@ -233,6 +234,7 @@ export function StepForm({
           placeholder="System instructions for the LLM..."
           value={systemPrompt}
           onChange={(e) => setSystemPrompt(e.target.value)}
+          className="!min-h-[72px]"
         />
 
         <Textarea
@@ -240,6 +242,7 @@ export function StepForm({
           placeholder="User prompt template..."
           value={userPrompt}
           onChange={(e) => setUserPrompt(e.target.value)}
+          className="!min-h-[72px]"
         />
 
         {selectedModel?.is_temperature_supported && (
@@ -256,7 +259,7 @@ export function StepForm({
           />
         )}
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-1">
           <Button type="submit" loading={saving}>
             {isEdit ? "Save Changes" : "Add Step"}
           </Button>

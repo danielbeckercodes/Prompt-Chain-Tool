@@ -34,9 +34,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
     >
       <div
         ref={panelRef}
-        className="rounded-xl bg-white p-6 shadow-lg max-w-md w-full dark:bg-zinc-900"
+        className="rounded-xl bg-white shadow-lg max-w-md w-full dark:bg-zinc-900 max-h-[90vh] flex flex-col"
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between p-6 pb-0 mb-4 shrink-0">
           {title && (
             <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">{title}</h2>
           )}
@@ -59,7 +59,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             </svg>
           </button>
         </div>
-        {children}
+        <div className="overflow-y-auto px-6 pb-6">
+          {children}
+        </div>
       </div>
     </div>
   );
