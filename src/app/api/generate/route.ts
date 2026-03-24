@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const API_BASE_URL = "https://api.almostcrackd.ai";
+const API_BASE_URL = "https://api.almostcrackd.ai/pipeline/generate-captions";
 
 export async function POST(request: Request) {
   try {
@@ -35,8 +35,8 @@ export async function POST(request: Request) {
         Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
-        humor_flavor_id,
-        image_id,
+        humorFlavorId: humor_flavor_id,
+        imageId: image_id,
       }),
     });
 
