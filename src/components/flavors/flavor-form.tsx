@@ -50,7 +50,12 @@ export function FlavorForm({ flavor }: FlavorFormProps) {
         .eq("id", flavor.id);
 
       if (error) {
-        toast("Failed to save: " + error.message, "error");
+        if (error.code === "23505") {
+          toast("A flavor with this name already exists. Please choose a different name.", "error");
+          setErrors({ slug: "This name is already taken" });
+        } else {
+          toast("Failed to save: " + error.message, "error");
+        }
         setSaving(false);
         return;
       }
@@ -69,7 +74,12 @@ export function FlavorForm({ flavor }: FlavorFormProps) {
         .single();
 
       if (error) {
-        toast("Failed to create: " + error.message, "error");
+        if (error.code === "23505") {
+          toast("A flavor with this name already exists. Please choose a different name.", "error");
+          setErrors({ slug: "This name is already taken" });
+        } else {
+          toast("Failed to create: " + error.message, "error");
+        }
         setSaving(false);
         return;
       }
