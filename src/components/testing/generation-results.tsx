@@ -1,5 +1,14 @@
 "use client";
 
+import type { PipelineStep } from "@/lib/types";
+
+const STEP_LABELS: Record<PipelineStep, string> = {
+  presigning: "Preparing upload...",
+  uploading: "Uploading image...",
+  registering: "Registering image...",
+  generating: "Generating captions... This may take a moment.",
+};
+
 interface GenerationResultsProps {
   results: {
     captions: string[];
@@ -7,14 +16,20 @@ interface GenerationResultsProps {
   } | null;
   isLoading: boolean;
   error: string | null;
+  pipelineStep?: PipelineStep | null;
 }
 
 export function GenerationResults({
   results,
   isLoading,
   error,
+  pipelineStep,
 }: GenerationResultsProps) {
   if (isLoading) {
+    const label = pipelineStep
+      ? STEP_LABELS[pipelineStep]
+      : "Generating captions...";
+
     return (
       <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
         <div className="flex items-center gap-3">
@@ -38,7 +53,7 @@ export function GenerationResults({
             />
           </svg>
           <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            Generating captions... This may take a moment.
+            {label}
           </span>
         </div>
       </div>

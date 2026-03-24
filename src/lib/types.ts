@@ -125,3 +125,22 @@ export type GenerateResponse = {
   step_outputs?: { step: number; output: string }[];
   error?: string;
 };
+
+// Step 1: Generate presigned URL response
+export type PresignedUrlResponse = {
+  presignedUrl: string;
+  cdnUrl: string;
+};
+
+// Step 3: Register image response
+export type RegisterImageResponse = {
+  imageId: string;
+  now: number;
+};
+
+// Pipeline progress tracking
+export type PipelineStep =
+  | "presigning"
+  | "uploading"
+  | "registering"
+  | "generating";
