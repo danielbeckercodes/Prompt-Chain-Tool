@@ -26,6 +26,7 @@ export function ImageSelector({
   }
 
   return (
+    <div className="max-h-[40vh] overflow-y-auto rounded-xl border border-zinc-200 dark:border-zinc-800 p-3">
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
       {images.map((image) => {
         const isSelected = selectedImageId === image.id;
@@ -86,6 +87,7 @@ export function ImageSelector({
           </button>
         );
       })}
+    </div>
     </div>
   );
 }
