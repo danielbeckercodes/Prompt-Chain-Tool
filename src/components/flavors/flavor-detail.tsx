@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { FlavorForm } from "./flavor-form";
 import { FlavorDeleteButton } from "./flavor-delete-button";
+import { FlavorDuplicateButton } from "./flavor-duplicate-button";
 import { StepList } from "@/components/steps/step-list";
 import { CaptionHistory } from "@/components/testing/caption-history";
 import type {
@@ -73,6 +74,7 @@ export async function FlavorDetail({ id }: { id: string }) {
           >
             Test Flavor
           </Link>
+          <FlavorDuplicateButton flavorId={flavor.id} flavorName={flavor.slug} />
           <FlavorDeleteButton flavorId={flavor.id} flavorName={flavor.slug} />
         </div>
       </div>

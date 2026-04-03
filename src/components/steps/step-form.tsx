@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,19 @@ export function StepForm({
   );
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Reset form fields whenever the step prop changes (e.g. opening edit for a different step)
+  useEffect(() => {
+    setDescription(step?.description ?? "");
+    setSystemPrompt(step?.llm_system_prompt ?? "");
+    setUserPrompt(step?.llm_user_prompt ?? "");
+    setTemperature(step?.llm_temperature != null ? String(step.llm_temperature) : "");
+    setStepTypeId(step?.humor_flavor_step_type_id ?? stepTypes[0]?.id ?? 1);
+    setModelId(step?.llm_model_id ?? models[0]?.id ?? 1);
+    setInputTypeId(step?.llm_input_type_id ?? inputTypes[0]?.id ?? 1);
+    setOutputTypeId(step?.llm_output_type_id ?? outputTypes[0]?.id ?? 1);
+    setErrors({});
+  }, [step, stepTypes, models, inputTypes, outputTypes]);
 
   const selectedModel = models.find((m) => m.id === modelId);
 

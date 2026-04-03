@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { FlavorDuplicateButton } from "./flavor-duplicate-button";
 import type { HumorFlavorWithStepCount } from "@/lib/types";
 
 export function FlavorCard({ flavor }: { flavor: HumorFlavorWithStepCount }) {
@@ -58,13 +59,20 @@ export function FlavorCard({ flavor }: { flavor: HumorFlavorWithStepCount }) {
               </span>
             </div>
           </Link>
-          <Button
-            variant="danger"
-            onClick={() => setDeleteOpen(true)}
-            className="shrink-0 text-xs self-start"
-          >
-            Delete
-          </Button>
+          <div className="flex items-center gap-2 shrink-0 self-start">
+            <FlavorDuplicateButton
+              flavorId={flavor.id}
+              flavorName={flavor.slug}
+              className="text-xs"
+            />
+            <Button
+              variant="danger"
+              onClick={() => setDeleteOpen(true)}
+              className="text-xs"
+            >
+              Delete
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -42,14 +42,16 @@ function getStoredTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getStoredTheme);
-  const applied = useRef(false);
+  const [theme, setThemeState] = useState<Theme>("system");
+  const mounted = useRef(false);
 
   useEffect(() => {
-    if (applied.current) return;
-    applied.current = true;
-    applyTheme(theme);
-  }, [theme]);
+    if (mounted.current) return;
+    mounted.current = true;
+    const stored = getStoredTheme();
+    setThemeState(stored);
+    applyTheme(stored);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
