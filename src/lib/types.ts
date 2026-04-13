@@ -144,3 +144,45 @@ export type PipelineStep =
   | "uploading"
   | "registering"
   | "generating";
+
+// Statistics types
+export type FlavorEngagementStats = {
+  humor_flavor_id: number;
+  flavor_slug: string;
+  total_captions: number;
+  total_likes: number;
+  avg_like_count: number;
+  featured_count: number;
+};
+
+export type VolumeByDate = {
+  date: string; // YYYY-MM-DD
+  count: number;
+};
+
+export type TopCaption = {
+  id: string;
+  content: string | null;
+  like_count: number;
+  is_featured: boolean;
+  created_datetime_utc: string;
+  humor_flavors: { slug: string }[] | { slug: string } | null;
+  images: { url: string | null }[] | { url: string | null } | null;
+};
+
+export type ModelPerformanceStats = {
+  llm_model_id: number;
+  model_name: string;
+  provider_name: string;
+  total_responses: number;
+  avg_processing_time: number;
+  avg_caption_score: number;
+  caption_count: number;
+};
+
+export type CaptionSummary = {
+  total_captions: number;
+  total_likes: number;
+  total_featured: number;
+  avg_like_count: number;
+};
