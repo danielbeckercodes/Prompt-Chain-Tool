@@ -7,9 +7,8 @@ import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { StepItem } from "./step-item";
-import { StepForm } from "./step-form";
+import { StepInlineForm } from "./step-inline-form";
 import type {
-  HumorFlavorStep,
   HumorFlavorStepWithRelations,
   HumorFlavorStepType,
   LlmModel,
@@ -38,13 +37,15 @@ export function StepList({
   const router = useRouter();
   const { toast } = useToast();
   const [steps, setSteps] = useState(initialSteps);
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingStep, setEditingStep] = useState<HumorFlavorStep | undefined>();
-  const [deleteTarget, setDeleteTarget] = useState<HumorFlavorStepWithRelations | null>(null);
+  const [editingStepId, setEditingStepId] = useState<number | null>(null);
+  const [isAddingStep, setIsAddingStep] = useState(false);
+  const [deleteTarget, setDeleteTarget] =
+    useState<HumorFlavorStepWithRelations | null>(null);
   const [isReordering, setIsReordering] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const nextOrder = steps.length > 0 ? Math.max(...steps.map((s) => s.order_by)) + 1 : 1;
+  const nextOrder =
+    steps.length > 0 ? Math.max(...steps.map((s) => s.order_by)) + 1 : 1;
 
   const refreshSteps = useCallback(async () => {
     const supabase = createClient();
@@ -63,13 +64,18 @@ export function StepList({
   }, [flavorId, router]);
 
   function handleAddStep() {
-    setEditingStep(undefined);
-    setFormOpen(true);
+    setEditingStepId(null);
+    setIsAddingStep(true);
   }
 
-  function handleEditStep(step: HumorFlavorStepWithRelations) {
-    setEditingStep(step);
-    setFormOpen(true);
+  function handleEditStep(stepId: number) {
+    setIsAddingStep(false);
+    setEditingStepId(stepId);
+  }
+
+  function handleCancelEdit() {
+    setEditingStepId(null);
+    setIsAddingStep(false);
   }
 
   async function handleDeleteStep() {
@@ -77,7 +83,6 @@ export function StepList({
     setIsDeleting(true);
     const supabase = createClient();
 
-    // Delete the step
     const { error } = await supabase
       .from("humor_flavor_steps")
       .delete()
@@ -89,7 +94,6 @@ export function StepList({
       return;
     }
 
-    // Re-normalize order for remaining steps
     const remaining = steps
       .filter((s) => s.id !== deleteTarget.id)
       .sort((a, b) => a.order_by - b.order_by);
@@ -110,6 +114,9 @@ export function StepList({
     toast("Step deleted", "success");
     setDeleteTarget(null);
     setIsDeleting(false);
+    if (editingStepId === deleteTarget.id) {
+      setEditingStepId(null);
+    }
     await refreshSteps();
   }
 
@@ -117,7 +124,8 @@ export function StepList({
     setIsReordering(true);
     const supabase = createClient();
     const currentIndex = steps.findIndex((s) => s.id === stepId);
-    const swapIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const swapIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
     if (swapIndex < 0 || swapIndex >= steps.length) {
       setIsReordering(false);
@@ -134,7 +142,7 @@ export function StepList({
     newSteps.sort((a, b) => a.order_by - b.order_by);
     setSteps(newSteps);
 
-    // Persist to DB - swap order_by values
+    // Persist to DB
     const now = new Date().toISOString();
     const [res1, res2] = await Promise.all([
       supabase
@@ -161,10 +169,12 @@ export function StepList({
         <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
           Steps ({steps.length})
         </h2>
-        <Button onClick={handleAddStep}>Add Step</Button>
+        <Button onClick={handleAddStep} disabled={isAddingStep}>
+          Add Step
+        </Button>
       </div>
 
-      {steps.length === 0 ? (
+      {steps.length === 0 && !isAddingStep ? (
         <div className="text-sm text-zinc-400 dark:text-zinc-500 py-12 text-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           <p>No steps yet.</p>
           <p className="mt-1 text-zinc-500 dark:text-zinc-400">
@@ -184,32 +194,71 @@ export function StepList({
               step={step}
               index={index}
               totalSteps={steps.length}
-              onEdit={() => handleEditStep(step)}
+              isEditing={editingStepId === step.id}
+              onEdit={() => handleEditStep(step.id)}
+              onCancelEdit={handleCancelEdit}
               onDelete={() => setDeleteTarget(step)}
               onMoveUp={() => handleMoveStep(step.id, "up")}
               onMoveDown={() => handleMoveStep(step.id, "down")}
               isReordering={isReordering}
+              flavorId={flavorId}
+              stepTypes={stepTypes}
+              models={models}
+              inputTypes={inputTypes}
+              outputTypes={outputTypes}
+              onSaved={refreshSteps}
             />
           ))}
+
+          {/* Inline Add Step form */}
+          {isAddingStep && (
+            <div className="relative">
+              {steps.length > 0 && (
+                <div className="flex justify-center -mt-1 mb-1">
+                  <svg
+                    className="h-6 w-6 text-zinc-300 dark:text-zinc-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5v15m0 0l-6-6m6 6l6-6"
+                    />
+                  </svg>
+                </div>
+              )}
+              <div className="rounded-xl border border-zinc-400 dark:border-zinc-500 ring-2 ring-zinc-900/5 dark:ring-zinc-100/10 bg-white dark:bg-zinc-900 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-medium">
+                    {steps.length + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+                      New step
+                    </p>
+                    <StepInlineForm
+                      flavorId={flavorId}
+                      nextOrder={nextOrder}
+                      stepTypes={stepTypes}
+                      models={models}
+                      inputTypes={inputTypes}
+                      outputTypes={outputTypes}
+                      onSaved={async () => {
+                        await refreshSteps();
+                        setIsAddingStep(false);
+                      }}
+                      onCancel={() => setIsAddingStep(false)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Add/Edit Step Modal */}
-      <StepForm
-        open={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setEditingStep(undefined);
-        }}
-        flavorId={flavorId}
-        step={editingStep}
-        nextOrder={nextOrder}
-        stepTypes={stepTypes}
-        models={models}
-        inputTypes={inputTypes}
-        outputTypes={outputTypes}
-        onSaved={refreshSteps}
-      />
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -219,11 +268,20 @@ export function StepList({
       >
         <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
           Are you sure you want to delete{" "}
-          <strong>{deleteTarget?.description || `Step ${(steps.findIndex((s) => s.id === deleteTarget?.id) ?? 0) + 1}`}</strong>?
-          Remaining steps will be re-numbered automatically.
+          <strong>
+            {deleteTarget?.description ||
+              `Step ${
+                (steps.findIndex((s) => s.id === deleteTarget?.id) ?? 0) + 1
+              }`}
+          </strong>
+          ? Remaining steps will be re-numbered automatically.
         </p>
         <div className="flex gap-3">
-          <Button variant="danger" onClick={handleDeleteStep} loading={isDeleting}>
+          <Button
+            variant="danger"
+            onClick={handleDeleteStep}
+            loading={isDeleting}
+          >
             Delete
           </Button>
           <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
